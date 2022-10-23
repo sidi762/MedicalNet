@@ -1,4 +1,4 @@
-from setting import parse_opts 
+from setting import parse_opts
 from datasets.brains18 import BrainS18Dataset
 from model import generate_model
 import torch
@@ -47,7 +47,7 @@ def seg_eval(pred, label, clss):
 
 def test(data_loader, model, img_names, sets):
     masks = []
-    model.eval() # for testing 
+    model.eval() # for testing
     for batch_id, batch_data in enumerate(data_loader):
         # forward
         volume = batch_data
@@ -66,9 +66,9 @@ def test(data_loader, model, img_names, sets):
         scale = [1, depth*1.0/mask_d, height*1.0/mask_h, width*1.0/mask_w]
         mask = ndimage.interpolation.zoom(mask, scale, order=1)
         mask = np.argmax(mask, axis=0)
-        
+
         masks.append(mask)
- 
+
     return masks
 
 
@@ -79,8 +79,10 @@ if __name__ == '__main__':
     sets.phase = 'test'
 
     # getting model
-    checkpoint = torch.load(sets.resume_path)
+    checkpoint = torch.load(sets.resume_path, map_location=torch.device('cpu'))
     net, _ = generate_model(sets)
+    if sets.no_cuda:
+        net = torch.nn.DataParallel(net)
     net.load_state_dict(checkpoint['state_dict'])
 
     # data tensor
@@ -90,8 +92,8 @@ if __name__ == '__main__':
     # testing
     img_names = [info.split(" ")[0] for info in load_lines(sets.img_list)]
     masks = test(data_loader, net, img_names, sets)
-    
-    # evaluation: calculate dice 
+
+    # evaluation: calculate dice
     label_names = [info.split(" ")[1] for info in load_lines(sets.img_list)]
     Nimg = len(label_names)
     dices = np.zeros([Nimg, sets.n_seg_classes])
@@ -99,8 +101,8 @@ if __name__ == '__main__':
         label = nib.load(os.path.join(sets.data_root, label_names[idx]))
         label = label.get_data()
         dices[idx, :] = seg_eval(masks[idx], label, range(sets.n_seg_classes))
-    
+
     # print result
     for idx in range(1, sets.n_seg_classes):
         mean_dice_per_task = np.mean(dices[:, idx])
-        print('mean dice for class-{} is {}'.format(idx, mean_dice_per_task))   
+        print('mean dice for class-{} is {}'.format(idx, mean_dice_per_task))
