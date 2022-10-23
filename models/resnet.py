@@ -130,7 +130,7 @@ class ResNet(nn.Module):
             stride=(2, 2, 2),
             padding=(3, 3, 3),
             bias=False)
-            
+
         self.bn1 = nn.BatchNorm3d(64)
         self.relu = nn.ReLU(inplace=True)
         self.maxpool = nn.MaxPool3d(kernel_size=(3, 3, 3), stride=2, padding=1)
@@ -141,7 +141,12 @@ class ResNet(nn.Module):
             block, 256, layers[2], shortcut_type, stride=1, dilation=2)
         self.layer4 = self._make_layer(
             block, 512, layers[3], shortcut_type, stride=1, dilation=4)
+        self.conv_seg = nn.Sequential(
+            nn.AdaptiveMaxPool3d(output_size=(1, 1, 1)),
+            nn.Flatten(start_dim=1),
+            nn.Dropout(0.1))
 
+        '''
         self.conv_seg = nn.Sequential(
                                         nn.ConvTranspose3d(
                                         512 * block.expansion,
@@ -157,7 +162,7 @@ class ResNet(nn.Module):
                                         kernel_size=3,
                                         stride=(1, 1, 1),
                                         padding=(1, 1, 1),
-                                        bias=False), 
+                                        bias=False),
                                         nn.BatchNorm3d(32),
                                         nn.ReLU(inplace=True),
                                         nn.Conv3d(
@@ -165,9 +170,10 @@ class ResNet(nn.Module):
                                         num_seg_classes,
                                         kernel_size=1,
                                         stride=(1, 1, 1),
-                                        bias=False) 
+                                        bias=False)
                                         )
-
+        '''
+        self.fc = nn.Linear(512, 2)
         for m in self.modules():
             if isinstance(m, nn.Conv3d):
                 m.weight = nn.init.kaiming_normal(m.weight, mode='fan_out')
@@ -211,6 +217,7 @@ class ResNet(nn.Module):
         x = self.layer3(x)
         x = self.layer4(x)
         x = self.conv_seg(x)
+        x = self.fc(x)
 
         return x
 
