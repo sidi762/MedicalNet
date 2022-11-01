@@ -124,7 +124,7 @@ class ResNet(nn.Module):
         self.no_cuda = no_cuda
         super(ResNet, self).__init__()
         self.conv1 = nn.Conv3d(
-            1,
+            2, #Two channels for T1 and T2 sequences
             64,
             kernel_size=7,
             stride=(2, 2, 2),

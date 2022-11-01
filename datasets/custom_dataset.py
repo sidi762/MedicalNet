@@ -18,7 +18,7 @@ class CustomTumorDataset(Dataset):
 
     def __init__(self, root_dir, sets):
         self.root_dir = root_dir
-        self.paths = list(pathlib.Path(root_dir).glob("*/*.nii.gz"))
+        self.paths = list(pathlib.Path(root_dir).glob("*/*"))#folder containing the T1 and T2 images for one patient
         self.classes, self.class_to_idx = self.__find_classes__(root_dir)
         self.input_D = sets.input_D
         self.input_H = sets.input_H
@@ -27,7 +27,7 @@ class CustomTumorDataset(Dataset):
 
     def __nii2tensorarray__(self, data):
         [z, y, x] = data.shape
-        new_data = np.reshape(data, [1, z, y, x])
+        new_data = np.reshape(data, [z, y, x])
         new_data = new_data.astype("float32")
 
         return new_data
@@ -66,22 +66,37 @@ class CustomTumorDataset(Dataset):
 
         if self.phase == "train":
             # read image and labels
-            img_path = self.paths[idx]
+            patient_path = self.paths[idx]
+            t1_image_path = list(patient_path.glob("*t1.nii.gz"))
+            print(patient_path)
+            t2_image_path = list(patient_path.glob("*t2.nii.gz"))
+            t1_image_path = t1_image_path[0]
+            assert os.path.isfile(t1_image_path)
+            self.t1_image_list.append(t1_image_path)
+            t2_image_path = t2_image_path[0]
+            self.t2_image_list.append(t2_image_path)
+            assert os.path.isfile(t2_image_path)
             class_name  = self.paths[idx].parent.name
-            assert os.path.isfile(img_path)
-            img = nibabel.load(img_path)  # We have transposed the data from WHD format to DHW
-            assert img is not None
+            t1_img = nibabel.load(t1_image_path)  # We have transposed the data from WHD format to DHW
+            t2_img = nibabel.load(t2_image_path)
+            assert t1_img is not None
+            assert t2_img is not None
 
             # data processing
-            img_array = self.__training_data_process__(img)
+            t1_img_array = self.__training_data_process__(t1_img)
+            t2_img_array = self.__training_data_process__(t2_img)
 
             # 2 tensor array
-            img_array = self.__nii2tensorarray__(img_array)
+            t1_img_array = self.__nii2tensorarray__(t1_img_array)
+            t2_img_array = self.__nii2tensorarray__(t2_img_array)
+            img_array = np.array([t1_img_array, t2_img_array])
+            #print(img_array.shape)
             class_idx = self.class_to_idx[class_name]
 
             return img_array, class_idx
 
         elif self.phase == "test":
+            #WIP
             # read image
             ith_info = self.img_list[idx].split(" ")
             img_name = os.path.join(self.root_dir, ith_info[0])
