@@ -14,7 +14,8 @@ def parse_opts():
         help='Root directory path of data')
     parser.add_argument(
         '--img_list',
-        default='./data/train.txt',
+        #default='./data/train.txt',
+        default='',
         type=str,
         help='Path for image list file')
     parser.add_argument(
@@ -72,7 +73,8 @@ def parse_opts():
     )
     parser.add_argument(
         '--pretrain_path',
-        default='pretrain/resnet_50.pth',
+        #default='pretrain/resnet_50.pth',
+        default = '',
         type=str,
         help=
         'Path for pretrained model.'
