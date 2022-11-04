@@ -96,20 +96,30 @@ class CustomTumorDataset(Dataset):
             return img_array, class_idx
 
         elif self.phase == "test":
-            #WIP
+            # WIP
+            # Not sure about what's the point of the whole ith_info stuff yet
             # read image
-            ith_info = self.img_list[idx].split(" ")
-            img_name = os.path.join(self.root_dir, ith_info[0])
-            print(img_name)
-            assert os.path.isfile(img_name)
-            img = nibabel.load(img_name)
-            assert img is not None
+            t1_ith_info = self.t1_image_list[idx].split(" ")
+            t2_ith_info = self.t2_image_list[idx].split(" ")
+            t1_img_name = os.path.join(self.root_dir, t1_ith_info[0])
+            t2_img_name = os.path.join(self.root_dir, t1_ith_info[0])
+            print(t1_img_name)
+            print(t2_img_name)
+            assert os.path.isfile(t1_img_name)
+            assert os.path.isfile(t2_img_name)
+            t1_img = nibabel.load(t1_img_name)
+            t2_img = nibabel.load(t2_img_name)
+            assert t1_img is not None
+            assert t2_img is not None
 
             # data processing
-            img_array = self.__testing_data_process__(img)
+            t1_img_array = self.__testing_data_process__(t1_img)
+            t2_img_array = self.__testing_data_process__(t2_img)
 
             # 2 tensor array
-            img_array = self.__nii2tensorarray__(img_array)
+            t1_img_array = self.__nii2tensorarray__(t1_img_array)
+            t2_img_array = self.__nii2tensorarray__(t2_img_array)
+            img_array = np.array([t1_img_array, t2_img_array])
 
             return img_array
 
@@ -216,14 +226,15 @@ class CustomTumorDataset(Dataset):
 
     def __training_data_process__(self, data, label=None):
         if label is None:
-            # crop data according net input size
+            # get data from nii and returns an array. According to the documentation,
+            # get_data() is deprecated, consider changing to get_fdata() or numpy.asanyarray(img.dataobj)
             data = data.get_data()
 
             # drop out the invalid range
             data = self.__drop_invalid_range__(data)
 
             # crop data
-            data = self.__crop_data__(data)
+            #data = self.__crop_data__(data)
 
             # resize data
             data = self.__resize_data__(data)
@@ -241,7 +252,7 @@ class CustomTumorDataset(Dataset):
             data, label = self.__drop_invalid_range__(data, label)
 
             # crop data
-            data, label = self.__crop_data__(data, label)
+            #data, label = self.__crop_data__(data, label)
 
             # resize data
             data = self.__resize_data__(data)
