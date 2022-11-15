@@ -51,17 +51,17 @@ def parse_opts():
         help='Number of total epochs to run')
     parser.add_argument(
         '--input_D',
-    default=56,
+        default=20,
         type=int,
         help='Input size of depth')
     parser.add_argument(
         '--input_H',
-        default=448,
+        default=512,
         type=int,
         help='Input size of height')
     parser.add_argument(
         '--input_W',
-        default=448,
+        default=512,
         type=int,
         help='Input size of width')
     parser.add_argument(

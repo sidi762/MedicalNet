@@ -1,8 +1,11 @@
 <img src="images/logo.png" align=mid />
 
+### Quick Note for myself
+`python3 my_resnet18_train.py --model resnet --model_depth 18 --resnet_shortcut A --input_W=512 --input_H=512 --input_D=20 --n_epochs=200 --data_root="data_t2" --no_cuda
+`
 
 # MedicalNet
-This repository contains a Pytorch implementation of [Med3D: Transfer Learning for 3D Medical Image Analysis](https://arxiv.org/abs/1904.00625). 
+This repository contains a Pytorch implementation of [Med3D: Transfer Learning for 3D Medical Image Analysis](https://arxiv.org/abs/1904.00625).
 Many studies have shown that the performance on deep learning is significantly affected by volume of training data. The MedicalNet project aggregated the dataset with diverse modalities, target organs, and pathologies to to build relatively large datasets. Based on this dataset, a series of 3D-ResNet pre-trained models and corresponding transfer-learning training code are provided.
 
 ### License
@@ -156,7 +159,7 @@ python test.py --gpu_id 0 --resume_path trails/models/resnet_50_epoch_110_batch_
 ```
 
 ### Experiments
-- Computational Cost 
+- Computational Cost
 ```
 GPU：NVIDIA Tesla P40
 ```
@@ -205,7 +208,7 @@ GPU：NVIDIA Tesla P40
 
 - Performance
 ```
-Visualization of the segmentation results of our approach vs. the comparison ones after the same training epochs. 
+Visualization of the segmentation results of our approach vs. the comparison ones after the same training epochs.
 It has demonstrated that the efficiency for training convergence and accuracy based on our MedicalNet pre-trained models.
 ```
 <img src="images/efficiency.gif" width="812" hegiht="294" align=mid />
