@@ -22,7 +22,7 @@ def train(data_loader, model, optimizer, scheduler, total_epochs, save_interval,
     print(sets)
     print("\n\n")
     if not sets.no_cuda:
-        loss_seg = loss_seg.cuda()
+        loss_func = loss_func.cuda()
 
     model.train()
     train_time_sp = time.time()
@@ -42,6 +42,10 @@ def train(data_loader, model, optimizer, scheduler, total_epochs, save_interval,
 
             optimizer.zero_grad()
             out_class = model(volumes)
+            if not sets.no_cuda:
+                out_class = out_class.cuda()
+                label = label.cuda()
+
 
             # calculating loss
             loss = loss_func(out_class, label)
