@@ -239,7 +239,7 @@ class CustomTumorDataset(Dataset):
             # resize data
             data = self.__resize_data__(data)
 
-            # normalization datas
+            # normalization data
             data = self.__itensity_normalize_one_volume__(data)
 
             return data
