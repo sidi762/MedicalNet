@@ -11,6 +11,7 @@ from utils.logger import log
 from scipy import ndimage
 import os
 from datasets.custom_dataset import CustomTumorDataset
+from torch.utils.tensorboard import SummaryWriter
 
 def train(data_loader, model, optimizer, scheduler, total_epochs, save_interval, save_folder, sets):
     # settings
@@ -57,6 +58,7 @@ def train(data_loader, model, optimizer, scheduler, total_epochs, save_interval,
                     'Batch: {}-{} ({}), loss = {:.3f}, avg_batch_time = {:.3f}'\
                     .format(epoch, batch_id, batch_id_sp, loss.item(), avg_batch_time))
 
+            writer.add_scalar("Loss/train", loss, epoch)
             if not sets.ci_test:
                 # save model
                 if batch_id == 0 and batch_id_sp != 0 and batch_id_sp % save_interval == 0:
@@ -74,6 +76,7 @@ def train(data_loader, model, optimizer, scheduler, total_epochs, save_interval,
                                 'optimizer': optimizer.state_dict()},
                                 model_save_path)
 
+    writer.flush()
     print('Finished training')
     if sets.ci_test:
         exit()
@@ -137,3 +140,4 @@ if __name__ == '__main__':
 
     # training
     train(data_loader, model, optimizer, scheduler, total_epochs=sets.n_epochs, save_interval=sets.save_intervals, save_folder=sets.save_folder, sets=sets)
+    writer.close()
