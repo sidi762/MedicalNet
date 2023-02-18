@@ -127,6 +127,14 @@ data/**/*.nii.gz
 data/**/*.txt
 pretrain/**/*.pth
 trails/**/*.pth
+trails/**/*.tar
+MedicalNet_single/data_t1/**/*.nii.gz
+MedicalNet_single/data_t2/**/*.nii.gz
+MedicalNet_single/data_test_t1/**/*.nii.gz
+MedicalNet_single/data_test_t2/**/*.nii.gz
+MedicalNet_single/pretrain/**/*.pth
+MedicalNet_single/trails/**/*.pth
+MedicalNet_single/trails/**/*.tar
 
 # macOS
 */.DS_Store
