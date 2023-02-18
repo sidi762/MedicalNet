@@ -70,6 +70,27 @@ def train(data_loader, model, optimizer, scheduler, total_epochs, save_interval,
                                 'optimizer': optimizer.state_dict()},
                                 model_save_path)
 
+        #Validation per epoch
+        model.train(False)
+
+        running_val_loss = 0.0
+        for batch_id, batch_data in enumerate(validation_loader):
+            batch_id_sp = epoch * batches_per_epoch
+            val_volumes, val_labels = batch_data
+
+            if not sets.no_cuda:
+                val_volumes = val_volumes.cuda()
+
+            val_out_class = model(val_volumes)
+            val_loss = loss_func(val_out_class, val_labels)
+            running_val_loss += val_loss
+
+        avg_val_loss = running_val_loss / (batch_id + 1)
+        log.info('Validation loss {}'.format(avg_val_loss))
+
+        #End Validation
+
+    #End Epoch
     print('Finished training')
     if sets.ci_test:
         exit()
@@ -129,7 +150,10 @@ if __name__ == '__main__':
         sets.pin_memory = True
     #training_dataset = BrainS18Dataset(sets.data_root, sets.img_list, sets)
     training_dataset = CustomTumorDataset(sets.data_root, sets)
+    validation_dataset = CustomTumorDataset(sets.data_root_val, sets)
+    print('Training set has {} instances'.format(len(training_dataset)))
+    print('Validation set has {} instances'.format(len(validation_dataset)))
     data_loader = DataLoader(training_dataset, batch_size=sets.batch_size, shuffle=True, num_workers=sets.num_workers, pin_memory=sets.pin_memory)
-
+    validation_loader = DataLoader(validation_dataset, batch_size=sets.batch_size, shuffle=False, num_workers=sets.num_workers, pin_memory=sets.pin_memory)
     # training
     train(data_loader, model, optimizer, scheduler, total_epochs=sets.n_epochs, save_interval=sets.save_intervals, save_folder=sets.save_folder, sets=sets)
