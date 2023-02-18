@@ -13,6 +13,11 @@ def parse_opts():
         type=str,
         help='Root directory path of data')
     parser.add_argument(
+        '--data_root_val',
+        default='./data',
+        type=str,
+        help='Root directory path of the validation set')
+    parser.add_argument(
         '--img_list',
         #default='./data/train.txt',
         default='',
@@ -91,7 +96,7 @@ def parse_opts():
     parser.add_argument(
         '--gpu_id',
         nargs='+',
-        type=int,              
+        type=int,
         help='Gpu id lists')
     parser.add_argument(
         '--model',
@@ -114,5 +119,5 @@ def parse_opts():
         '--ci_test', action='store_true', help='If true, ci testing is used.')
     args = parser.parse_args()
     args.save_folder = "./trails/models/{}_{}".format(args.model, args.model_depth)
-    
+
     return args

@@ -13,6 +13,11 @@ def parse_opts():
         type=str,
         help='Root directory path of data')
     parser.add_argument(
+        '--data_root_val',
+        default='./data',
+        type=str,
+        help='Root directory path of the validation set')
+    parser.add_argument(
         '--img_list',
         #default='./data/train.txt',
         default='',
