@@ -24,6 +24,8 @@ class CustomTumorDataset(Dataset):
         self.input_H = sets.input_H
         self.input_W = sets.input_W
         self.phase = sets.phase
+        self.t1_image_list = []
+        self.t2_image_list = []
 
     def __nii2tensorarray__(self, data):
         [z, y, x] = data.shape
@@ -97,7 +99,7 @@ class CustomTumorDataset(Dataset):
 
         elif self.phase == "test":
             # WIP
-            # Not sure about what's the point of the whole ith_info stuff yet
+            # Not sure about what's the point of the whole ith_info stuff yet -- Sidi Liang
             # read image
             t1_ith_info = self.t1_image_list[idx].split(" ")
             t2_ith_info = self.t2_image_list[idx].split(" ")
@@ -229,6 +231,7 @@ class CustomTumorDataset(Dataset):
             # get data from nii and returns an array. According to the documentation,
             # get_data() is deprecated, consider changing to get_fdata() or numpy.asanyarray(img.dataobj)
             data = data.get_data()
+            data = data[:,:,:,0] 
 
             # drop out the invalid range
             data = self.__drop_invalid_range__(data)

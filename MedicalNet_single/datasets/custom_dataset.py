@@ -203,7 +203,7 @@ class CustomTumorDataset(Dataset):
         if label is None:
             # crop data according net input size
             data = data.get_data()
-
+            data = data[:,:,:,0] 
             # drop out the invalid range
             data = self.__drop_invalid_range__(data)
 
