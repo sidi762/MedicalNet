@@ -3,6 +3,10 @@
 ### Quick Note for myself
 `python3 my_resnet18_train.py --model resnet --model_depth 18 --resnet_shortcut A --input_W=512 --input_H=512 --input_D=20 --n_epochs=200 --data_root="data_t2" --no_cuda
 `
+### On Server with CUDA
+`python3 my_resnet18_train.py --model resnet --model_depth 18 --resnet_shortcut A --input_W=512 --input_H=512 --input_D=20 --n_epochs=200 --data_root="t1_t2_train" --data_root_val="t1_t2_test" --gpu_id 0
+
+`
 
 # MedicalNet
 This repository contains a Pytorch implementation of [Med3D: Transfer Learning for 3D Medical Image Analysis](https://arxiv.org/abs/1904.00625).
