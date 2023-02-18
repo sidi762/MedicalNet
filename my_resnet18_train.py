@@ -13,6 +13,8 @@ import os
 from datasets.custom_dataset import CustomTumorDataset
 from torch.utils.tensorboard import SummaryWriter
 
+writer = SummaryWriter()
+
 def train(data_loader, model, optimizer, scheduler, total_epochs, save_interval, save_folder, sets):
     # settings
     batches_per_epoch = len(data_loader)
