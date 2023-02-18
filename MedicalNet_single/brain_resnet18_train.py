@@ -11,6 +11,7 @@ from utils.logger import log
 from scipy import ndimage
 import os
 from datasets.custom_dataset import CustomTumorDataset
+from torch.utils.tensorboard import SummaryWriter
 
 def train(data_loader, model, optimizer, scheduler, total_epochs, save_interval, save_folder, sets):
     # settings
@@ -47,11 +48,11 @@ def train(data_loader, model, optimizer, scheduler, total_epochs, save_interval,
             loss = loss_func(out_class, label)
             loss.backward()
             optimizer.step()
-
+            last_loss = loss.item()
             avg_batch_time = (time.time() - train_time_sp) / (1 + batch_id_sp)
             log.info(
-                    'Batch: {}-{} ({}), loss = {:.3f}, avg_batch_time = {:.3f}'\
-                    .format(epoch, batch_id, batch_id_sp, loss.item(), avg_batch_time))
+                    'Batch: {}(epoch)-{} ({}), loss = {:.3f}, avg_batch_time = {:.3f}'\
+                    .format(epoch, batch_id, batch_id_sp, last_loss, avg_batch_time))
 
             if not sets.ci_test:
                 # save model
@@ -87,10 +88,13 @@ def train(data_loader, model, optimizer, scheduler, total_epochs, save_interval,
 
         avg_val_loss = running_val_loss / (batch_id + 1)
         log.info('Validation loss {}'.format(avg_val_loss))
+        writer.add_scalar("Loss/train", last_loss, epoch)
+        writer.add_scalar("Loss/validation", avg_val_loss, epoch)
 
         #End Validation
 
     #End Epoch
+    writer.flush()
     print('Finished training')
     if sets.ci_test:
         exit()
@@ -157,3 +161,4 @@ if __name__ == '__main__':
     validation_loader = DataLoader(validation_dataset, batch_size=sets.batch_size, shuffle=False, num_workers=sets.num_workers, pin_memory=sets.pin_memory)
     # training
     train(data_loader, model, optimizer, scheduler, total_epochs=sets.n_epochs, save_interval=sets.save_intervals, save_folder=sets.save_folder, sets=sets)
+    writer.close()
