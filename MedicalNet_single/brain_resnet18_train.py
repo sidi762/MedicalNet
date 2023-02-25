@@ -36,6 +36,8 @@ def train(data_loader, model, optimizer, scheduler, total_epochs, save_interval,
         log.info('lr = {}'.format(scheduler.get_lr()))
 
         for batch_id, batch_data in enumerate(data_loader):
+            correct = 0
+            total = 0
             # getting data batch
             batch_id_sp = epoch * batches_per_epoch
             volumes, label = batch_data
@@ -54,10 +56,14 @@ def train(data_loader, model, optimizer, scheduler, total_epochs, save_interval,
             loss.backward()
             optimizer.step()
             last_loss = loss.item()
+            _, predicted = torch.max(out_class.data, 1)
+            correct += (predicted == label).float().sum()
+            total += label.size(0)
+            accuracy = 100 * correct / total
             avg_batch_time = (time.time() - train_time_sp) / (1 + batch_id_sp)
             log.info(
-                    'Batch: {}(epoch)-{} ({}), loss = {:.3f}, avg_batch_time = {:.3f}'\
-                    .format(epoch, batch_id, batch_id_sp, last_loss, avg_batch_time))
+                    'Batch: {}(epoch)-{} ({}), loss = {:.3f}, accuracy = {:.3f}, avg_batch_time = {:.3f}'\
+                    .format(epoch, batch_id, batch_id_sp, last_loss, accuracy, avg_batch_time))
 
             if not sets.ci_test:
                 # save model
@@ -77,8 +83,10 @@ def train(data_loader, model, optimizer, scheduler, total_epochs, save_interval,
                                 model_save_path)
 
         #Validation per epoch
-        model.train(False)
         with torch.no_grad():
+            model.train(False)
+            correct = 0
+            total = 0
             running_val_loss = 0.0
             for batch_id, batch_data in enumerate(validation_loader):
                 batch_id_sp = epoch * batches_per_epoch
@@ -88,6 +96,9 @@ def train(data_loader, model, optimizer, scheduler, total_epochs, save_interval,
                     val_volumes = val_volumes.cuda()
 
                 val_out_class = model(val_volumes)
+                _, predicted = torch.max(val_out_class.data, 1)
+                total += val_labels.size(0)
+                correct += (predicted == val_labels).float().sum()
                 if not sets.no_cuda:
                     val_out_class = val_out_class.cuda()
                     val_labels = val_labels.cuda()
@@ -95,10 +106,14 @@ def train(data_loader, model, optimizer, scheduler, total_epochs, save_interval,
                 val_loss = loss_func(val_out_class, val_labels)
                 running_val_loss += val_loss
 
+            val_accuracy = 100 * correct / total
             avg_val_loss = running_val_loss / (batch_id + 1)
             log.info('Validation loss {}'.format(avg_val_loss))
+            log.info('Validation accuracy {}'.format(val_accuracy))
             writer.add_scalar("Loss/train", last_loss, epoch)
             writer.add_scalar("Loss/validation", avg_val_loss, epoch)
+            #writer.add_scalar("Accuracy/train", accuracy, epoch)
+            writer.add_scalar("Accuracy/validation", val_accuracy, epoch)
 
         #End Validation
 
