@@ -78,27 +78,27 @@ def train(data_loader, model, optimizer, scheduler, total_epochs, save_interval,
 
         #Validation per epoch
         model.train(False)
+        with torch.no_grad():
+            running_val_loss = 0.0
+            for batch_id, batch_data in enumerate(validation_loader):
+                batch_id_sp = epoch * batches_per_epoch
+                val_volumes, val_labels = batch_data
 
-        running_val_loss = 0.0
-        for batch_id, batch_data in enumerate(validation_loader):
-            batch_id_sp = epoch * batches_per_epoch
-            val_volumes, val_labels = batch_data
+                if not sets.no_cuda:
+                    val_volumes = val_volumes.cuda()
 
-            if not sets.no_cuda:
-                val_volumes = val_volumes.cuda()
+                val_out_class = model(val_volumes)
+                if not sets.no_cuda:
+                    val_out_class = val_out_class.cuda()
+                    val_labels = val_labels.cuda()
 
-            val_out_class = model(val_volumes)
-            if not sets.no_cuda:
-                val_out_class = val_out_class.cuda()
-                val_labels = val_labels.cuda()
+                val_loss = loss_func(val_out_class, val_labels)
+                running_val_loss += val_loss
 
-            val_loss = loss_func(val_out_class, val_labels)
-            running_val_loss += val_loss
-
-        avg_val_loss = running_val_loss / (batch_id + 1)
-        log.info('Validation loss {}'.format(avg_val_loss))
-        writer.add_scalar("Loss/train", last_loss, epoch)
-        writer.add_scalar("Loss/validation", avg_val_loss, epoch)
+            avg_val_loss = running_val_loss / (batch_id + 1)
+            log.info('Validation loss {}'.format(avg_val_loss))
+            writer.add_scalar("Loss/train", last_loss, epoch)
+            writer.add_scalar("Loss/validation", avg_val_loss, epoch)
 
         #End Validation
 
