@@ -1,6 +1,6 @@
 '''
-Custom dataset for brain tumor classification
-Sidi Liang, 2022
+Custom dataset for brain tumor classification, single modal input
+Sidi Liang, 2022-2023
 '''
 
 import math
@@ -201,8 +201,10 @@ class CustomTumorDataset(Dataset):
 
     def __training_data_process__(self, data, label=None):
         if label is None:
+            # For classification
             # crop data according net input size
             data = data.get_data()
+            data = data[:,:,:,0]
             # drop out the invalid range
             data = self.__drop_invalid_range__(data)
 
@@ -218,6 +220,7 @@ class CustomTumorDataset(Dataset):
             return data
         else:
             # crop data according net input size
+            # For segmentation, WIP
             data = data.get_data()
             label = label.get_data()
 
@@ -236,11 +239,10 @@ class CustomTumorDataset(Dataset):
 
             return data, label
 
-
-
     def __testing_data_process__(self, data):
         # crop data according net input size
         data = data.get_data()
+        data = data[:,:,:,0]
 
         # resize data
         data = self.__resize_data__(data)

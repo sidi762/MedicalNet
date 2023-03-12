@@ -1,9 +1,7 @@
 <img src="images/logo.png" align=mid />
 
 ### Quick Note for myself
-`python3 brain_resnet18_train.py --model resnet
- --model_depth 18 --resnet_shortcut A --input_W=512 --input_H=512 --input_D=20 --n_epochs=20
-0 --data_root="data_t1" --data_root_val="data_test_t1" --no_cuda
+`python3 brain_resnet18_train.py --model resnet --model_depth 18 --resnet_shortcut A --input_W=512 --input_H=512 --input_D=20 --n_epochs=200 --data_root="data_t1" --data_root_val="data_test_t1" --no_cuda
 `
 
 # MedicalNet

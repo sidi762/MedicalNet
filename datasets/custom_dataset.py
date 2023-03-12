@@ -1,6 +1,6 @@
 '''
-Custom dataset for brain tumor classification
-Sidi Liang, 2022
+Custom dataset for brain tumor classification, T1+T2 hybrid
+Sidi Liang, 2022-2023
 '''
 
 import math
@@ -228,10 +228,11 @@ class CustomTumorDataset(Dataset):
 
     def __training_data_process__(self, data, label=None):
         if label is None:
+            # For classification
             # get data from nii and returns an array. According to the documentation,
             # get_data() is deprecated, consider changing to get_fdata() or numpy.asanyarray(img.dataobj)
             data = data.get_data()
-            data = data[:,:,:,0] 
+            data = data[:,:,:,0]
 
             # drop out the invalid range
             data = self.__drop_invalid_range__(data)
@@ -248,6 +249,7 @@ class CustomTumorDataset(Dataset):
             return data
         else:
             # crop data according net input size
+            # For segmentation, WIP
             data = data.get_data()
             label = label.get_data()
 
@@ -271,6 +273,7 @@ class CustomTumorDataset(Dataset):
     def __testing_data_process__(self, data):
         # crop data according net input size
         data = data.get_data()
+        data = data[:,:,:,0]
 
         # resize data
         data = self.__resize_data__(data)
