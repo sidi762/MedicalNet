@@ -96,13 +96,15 @@ def train(data_loader, model, optimizer, scheduler, total_epochs, save_interval,
                     val_volumes = val_volumes.cuda()
 
                 val_out_class = model(val_volumes)
-                _, predicted = torch.max(val_out_class.data, 1)
-                total += val_labels.size(0)
-                correct += (predicted == val_labels).float().sum()
+
                 if not sets.no_cuda:
                     val_out_class = val_out_class.cuda()
                     val_labels = val_labels.cuda()
 
+                _, predicted = torch.max(val_out_class.data, 1)
+                total += val_labels.size(0)
+                correct += (predicted == val_labels).float().sum()
+                
                 val_loss = loss_func(val_out_class, val_labels)
                 running_val_loss += val_loss
 
