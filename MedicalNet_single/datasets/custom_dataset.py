@@ -18,7 +18,7 @@ class CustomTumorDataset(Dataset):
 
     def __init__(self, root_dir, sets):
         self.root_dir = root_dir
-        self.paths = list(pathlib.Path(root_dir).glob("*/*.nii.gz"))
+        self.paths = list(pathlib.Path(root_dir).glob("*/*.nii.gz")) + list(pathlib.Path(root_dir).glob("*/*.nii"))
         self.classes, self.class_to_idx = self.__find_classes__(root_dir)
         self.input_D = sets.input_D
         self.input_H = sets.input_H
