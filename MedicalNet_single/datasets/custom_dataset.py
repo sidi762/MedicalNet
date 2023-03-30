@@ -204,7 +204,7 @@ class CustomTumorDataset(Dataset):
             # For classification
             # crop data according net input size
             data = data.get_data()
-            data = data[:,:,:,0]
+           # data = data[:,:,:,0]
             # drop out the invalid range
             data = self.__drop_invalid_range__(data)
 
@@ -236,13 +236,12 @@ class CustomTumorDataset(Dataset):
 
             # normalization datas
             data = self.__itensity_normalize_one_volume__(data)
-
             return data, label
 
     def __testing_data_process__(self, data):
         # crop data according net input size
         data = data.get_data()
-        data = data[:,:,:,0]
+       # data = data[:,:,:,0]
 
         # resize data
         data = self.__resize_data__(data)
@@ -250,4 +249,4 @@ class CustomTumorDataset(Dataset):
         # normalization datas
         data = self.__itensity_normalize_one_volume__(data)
 
-        return data
+        return data 
