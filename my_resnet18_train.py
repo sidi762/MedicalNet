@@ -103,7 +103,7 @@ def train(data_loader, model, optimizer, scheduler, total_epochs, save_interval,
                 _, predicted = torch.max(val_out_class.data, 1)
                 total += val_labels.size(0)
                 correct += (predicted == val_labels).float().sum()
-                
+
                 val_loss = loss_func(val_out_class, val_labels)
                 running_val_loss += val_loss
 
@@ -157,7 +157,7 @@ if __name__ == '__main__':
     else:
         params = [{'params': parameters, 'lr': sets.learning_rate}]
     optimizer = torch.optim.SGD(params, momentum=0.9, weight_decay=1e-3)
-    scheduler = optim.lr_scheduler.ExponentialLR(optimizer, gamma=0.99)
+    scheduler = optim.lr_scheduler.ExponentialLR(optimizer, gamma=0.7)
 
     # train from resume
     if sets.resume_path:
