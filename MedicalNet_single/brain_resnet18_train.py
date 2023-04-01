@@ -166,11 +166,14 @@ if __name__ == '__main__':
     if sets.resume_path:
         if os.path.isfile(sets.resume_path):
             print("=> loading checkpoint '{}'".format(sets.resume_path))
-            checkpoint = torch.load(sets.resume_path)
+            if not sets.no_cuda:
+                checkpoint = torch.load(sets.resume_path)
+            else:
+                checkpoint = torch.load(sets.resume_path, map_location=torch.device('cpu'))
             model.load_state_dict(checkpoint['state_dict'], strict=False)
-            optimizer.load_state_dict(checkpoint['optimizer'], strict=False)
-            print("=> loaded checkpoint '{}' (epoch {})"
-              .format(sets.resume_path, checkpoint['epoch']))
+            #optimizer.load_state_dict(checkpoint['optimizer'], strict=False)
+            #print("=> loaded checkpoint '{}' (epoch {})"
+            #  .format(sets.resume_path, checkpoint['epoch']))
 
     # getting data
     sets.phase = 'train'
