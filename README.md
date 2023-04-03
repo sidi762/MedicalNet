@@ -1,10 +1,10 @@
 <img src="images/logo.png" align=mid />
 
 ### Quick Note for myself
-`python3 my_resnet18_train.py --model resnet --model_depth 18 --resnet_shortcut A --input_W=512 --input_H=512 --input_D=20 --n_epochs=200 --data_root="data_t2" --no_cuda
+`python3 dualseq_resnet18_train.py --model resnet --model_depth 18 --resnet_shortcut A --batch_size=1 --input_W=512 --input_H=512 --input_D=20 --n_epochs=200 --data_root="data_t2" --no_cuda
 `
 ### On Server with CUDA
-`python3 my_resnet18_train.py --model resnet --model_depth 18 --resnet_shortcut A --input_W=512 --input_H=512 --input_D=20 --n_epochs=200 --data_root="data/t1_t2_train" --data_root_val="data/t1_t2_test" --gpu_id 0
+`python3 dualseq_resnet18_train.py --model resnet --model_depth 18 --resnet_shortcut A --batch_size=6 --input_W=512 --input_H=512 --input_D=20 --n_epochs=200 --data_root="data/t1_t2_train" --data_root_val="data/t1_t2_test" --gpu_id 0
 `
 
 # MedicalNet
