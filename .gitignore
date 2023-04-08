@@ -123,11 +123,11 @@ dmypy.json
 .pyre/
 
 # My configurations:
-data/**/*.nii.gz
-data/**/*.txt
-pretrain/**/*.pth
-trails/**/*.pth
-trails/**/*.tar
+MedicalNet_dual/data/**/*.nii.gz
+MedicalNet_dual/data/**/*.txt
+MedicalNet_dual/pretrain/**/*.pth
+MedicalNet_dual/trails/**/*.pth
+MedicalNet_dual/trails/**/*.tar
 MedicalNet_single/data_t1/**/*.nii.gz
 MedicalNet_single/data_t2/**/*.nii.gz
 MedicalNet_single/data_test_t1/**/*.nii.gz
@@ -135,7 +135,11 @@ MedicalNet_single/data_test_t2/**/*.nii.gz
 MedicalNet_single/pretrain/**/*.pth
 MedicalNet_single/trails/**/*.pth
 MedicalNet_single/trails/**/*.tar
-
+MedicalNet_dual/trails/**/*.tar
+MedicalNet_single/runs/*
+MedicalNet_dual/runs/*
+MedicalNet_dual/experiment_data/*
+MedicalNet_dual/experiment_data_flair/*
 # macOS
 */.DS_Store
 .DS_Store
