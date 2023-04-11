@@ -12,14 +12,17 @@ from scipy import ndimage
 import os
 from datasets.custom_dataset import CustomTumorDataset
 from torch.utils.tensorboard import SummaryWriter
+from EarlyStopping_torch import EarlyStopping
 
 writer = SummaryWriter()
 
-def train(data_loader, model, optimizer, scheduler, total_epochs, save_interval, save_folder, sets):
+def train(data_loader, model, optimizer, scheduler, total_epochs, save_interval, save_folder, sets, patience):
     # settings
     batches_per_epoch = len(data_loader)
     log.info('{} epochs in total, {} batches per epoch'.format(total_epochs, batches_per_epoch))
     loss_func = nn.CrossEntropyLoss(ignore_index=-1)
+    # initialize the early_stopping object
+    early_stopping = EarlyStopping(patience, verbose=True)
 
     print("Current setting is:")
     print(sets)
@@ -103,9 +106,9 @@ def train(data_loader, model, optimizer, scheduler, total_epochs, save_interval,
                 _, predicted = torch.max(val_out_class.data, 1)
                 total += val_labels.size(0)
                 correct += (predicted == val_labels).float().sum()
-
                 val_loss = loss_func(val_out_class, val_labels)
                 running_val_loss += val_loss
+
 
             val_accuracy = 100 * correct / total
             avg_val_loss = running_val_loss / (batch_id + 1)
@@ -115,6 +118,11 @@ def train(data_loader, model, optimizer, scheduler, total_epochs, save_interval,
             writer.add_scalar("Loss/validation", avg_val_loss, epoch)
             writer.add_scalar("Accuracy/validation", val_accuracy, epoch)
 
+            early_stopping(val_loss,model)
+
+            if early_stopping.early_stop:
+                print("Early stopping")
+                break
         #End Validation
 
     writer.flush()
@@ -156,8 +164,13 @@ if __name__ == '__main__':
         ]
     else:
         params = [{'params': parameters, 'lr': sets.learning_rate}]
-    optimizer = torch.optim.SGD(params, momentum=0.9, weight_decay=1e-3)
-    scheduler = optim.lr_scheduler.ExponentialLR(optimizer, gamma=0.7)
+    optimizer = torch.optim.Adam(params,
+                                 lr=sets.learning_rate,
+                                 betas=(0.9,0.999),
+                                 eps=1e-08,
+                                 weight_decay=1e-3,
+                                 amsgrad=False)
+    scheduler = optim.lr_scheduler.ExponentialLR(optimizer, gamma=0.95)
 
     # train from resume
     if sets.resume_path:
@@ -182,6 +195,10 @@ if __name__ == '__main__':
     print('Validation set has {} instances'.format(len(validation_dataset)))
     data_loader = DataLoader(training_dataset, batch_size=sets.batch_size, shuffle=True, num_workers=sets.num_workers, pin_memory=sets.pin_memory)
     validation_loader = DataLoader(validation_dataset, batch_size=sets.batch_size, shuffle=False, num_workers=sets.num_workers, pin_memory=sets.pin_memory)
+
+    #EarlyStopping
+    patience = 300
+
     # training
-    train(data_loader, model, optimizer, scheduler, total_epochs=sets.n_epochs, save_interval=sets.save_intervals, save_folder=sets.save_folder, sets=sets)
+    train(data_loader, model, optimizer, scheduler, total_epochs=sets.n_epochs, save_interval=sets.save_intervals, save_folder=sets.save_folder, sets=sets, patience=patience)
     writer.close()
