@@ -273,7 +273,7 @@ class CustomTumorDataset(Dataset):
     def __testing_data_process__(self, data):
         # crop data according net input size
         data = data.get_data()
-        data = data[:,:,:,0]
+        #data = data[:,:,:，0]
 
         # resize data
         data = self.__resize_data__(data)
