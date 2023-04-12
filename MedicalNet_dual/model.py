@@ -86,6 +86,7 @@ def generate_model(opt):
     if opt.phase != 'test' and opt.pretrain_path:
         print ('loading pretrained model {}'.format(opt.pretrain_path))
         pretrain = torch.load(opt.pretrain_path, map_location=torch.device('cpu'))
+        pretrain.pop('conv1.weight')
         pretrain_dict = {k: v for k, v in pretrain['state_dict'].items() if k in net_dict.keys()}
 
         net_dict.update(pretrain_dict)
