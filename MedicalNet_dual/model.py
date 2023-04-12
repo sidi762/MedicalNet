@@ -89,7 +89,7 @@ def generate_model(opt):
         pretrain_dict = {k: v for k, v in pretrain['state_dict'].items() if k in net_dict.keys()}
 
         net_dict.update(pretrain_dict)
-        model.load_state_dict(net_dict)
+        model.load_state_dict(net_dict, strict=False)
 
         new_parameters = []
         for pname, p in model.named_parameters():
