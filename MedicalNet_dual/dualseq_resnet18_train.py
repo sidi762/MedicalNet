@@ -170,7 +170,11 @@ if __name__ == '__main__':
                                  eps=1e-08,
                                  weight_decay=1e-3,
                                  amsgrad=False)
-    scheduler = optim.lr_scheduler.ExponentialLR(optimizer, gamma=0.95)
+    #scheduler = optim.lr_scheduler.ExponentialLR(optimizer, gamma=0.95)
+    scheduler = lr_scheduler.CosineAnnealingWarmRestarts(optimizer,
+                                        T_0 = 8,# Number of iterations for the first restart
+                                        T_mult = 1, # A factor increases TiTi​ after a restart
+                                        eta_min = 1e-6) # Minimum learning rate
 
     # train from resume
     if sets.resume_path:
