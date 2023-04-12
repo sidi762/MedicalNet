@@ -232,7 +232,7 @@ class CustomTumorDataset(Dataset):
             # get data from nii and returns an array. According to the documentation,
             # get_data() is deprecated, consider changing to get_fdata() or numpy.asanyarray(img.dataobj)
             data = data.get_data()
-            data = data[:,:,:,0]
+            #data = data[:,:,:,0]
 
             # drop out the invalid range
             data = self.__drop_invalid_range__(data)
