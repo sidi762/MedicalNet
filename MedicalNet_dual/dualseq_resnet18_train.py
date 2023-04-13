@@ -121,7 +121,7 @@ def train(data_loader, model, optimizer, scheduler, total_epochs, save_interval,
             avg_val_loss = running_val_loss / (batch_id + 1)
             log.info('Validation loss {}'.format(avg_val_loss))
             log.info('Validation accuracy {}'.format(val_accuracy))
-            writer.add_scalar("Training vs. Validation Loss", {'Train': last_loss, 'Validation': avg_val_loss}, epoch)
+            writer.add_scalars("Training vs. Validation Loss", {'Train': last_loss, 'Validation': avg_val_loss}, epoch)
             writer.add_scalar("Accuracy/validation", val_accuracy, epoch)
             if avg_val_loss < best_val_loss:
                 best_val_loss = avg_val_loss
