@@ -176,8 +176,19 @@ if __name__ == '__main__':
         ]
     else:
         params = [{'params': parameters, 'lr': sets.learning_rate}]
-    optimizer = torch.optim.SGD(params, momentum=0.9, weight_decay=1e-3)
-    scheduler = optim.lr_scheduler.ExponentialLR(optimizer, gamma=0.7)
+    # optimizer = torch.optim.SGD(params, momentum=0.9, weight_decay=1e-3)
+    # scheduler = optim.lr_scheduler.ExponentialLR(optimizer, gamma=0.7)
+    optimizer = torch.optim.Adam(params,
+                                 lr=sets.learning_rate,
+                                 betas=(0.9,0.999),
+                                 eps=1e-08,
+                                 weight_decay=1e-3,
+                                 amsgrad=False)
+    #scheduler = optim.lr_scheduler.ExponentialLR(optimizer, gamma=0.95)
+    scheduler = lr_scheduler.CosineAnnealingWarmRestarts(optimizer,
+                                        T_0 = 8,# Number of iterations for the first restart
+                                        T_mult = 1, # A factor increases TiTi​ after a restart
+                                        eta_min = 1e-6) # Minimum learning rate
 
     # train from resume
     if sets.resume_path:
