@@ -34,7 +34,7 @@ def train(data_loader, model, optimizer, scheduler, total_epochs, save_interval,
         log.info('Start epoch {}'.format(epoch))
 
         scheduler.step()
-        current_lr = scheduler.get_lr()
+        current_lr = scheduler.get_last_lr()
         log.info('lr = {}'.format(current_lr))
         writer.add_scalar("LearningRate", current_lr, epoch)
 
