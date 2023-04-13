@@ -111,7 +111,7 @@ def train(data_loader, model, optimizer, scheduler, total_epochs, save_interval,
                 correct += (predicted == val_labels).float().sum()
                 #Printing the ones that the model failed to predict
                 for index, item in enumerate(predicted):
-                    if item != val_labels[index]: print(val_img_names[index][0], " should be ", val_labels[index]))
+                    if item != val_labels[index]: print(val_img_names[index], " should be ", val_labels[index]))
 
                 val_loss = loss_func(val_out_class, val_labels)
                 running_val_loss += val_loss

@@ -79,7 +79,7 @@ class CustomTumorDataset(Dataset):
             img_array = self.__nii2tensorarray__(img_array)
             class_idx = self.class_to_idx[class_name]
 
-            return img_array, class_idx, [img_path]
+            return img_array, class_idx, img_path.__str__()
 
         elif self.phase == "test":
             #WIP
