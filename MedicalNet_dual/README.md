@@ -4,7 +4,8 @@
 `python3 dualseq_resnet18_train.py --model resnet --model_depth 18 --resnet_shortcut A --batch_size=1 --input_W=512 --input_H=512 --input_D=20 --n_epochs=200 --data_root="data_t2" --no_cuda
 `
 ### On Server with CUDA
-`python3 dualseq_resnet18_train.py --model resnet --model_depth 18 --resnet_shortcut A --batch_size=6 --input_W=512 --input_H=512 --input_D=20 --n_epochs=200 --data_root="data/t1_t2_train" --data_root_val="data/t1_t2_test" --gpu_id 0
+`python3 dualseq_resnet18_train.py --model resnet --model_depth 18 --resnet_shortcut A --batch_size=10 --input_W=512 --input_H=512 --input_D=20 --n_epochs=200 --data_root="dataset_t1_t2/data_t1_t2_match" --data_root_val="dataset_t1_t2/data_val_t1_t2_match" --learning_rate=0.001 --pretrain_path="../MedicalNet_pytorch_files2/pretrain/resnet_18_23dataset.pth" --gpu_id 1
+
 `
 
 # MedicalNet
