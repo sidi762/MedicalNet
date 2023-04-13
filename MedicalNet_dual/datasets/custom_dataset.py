@@ -95,7 +95,7 @@ class CustomTumorDataset(Dataset):
             #print(img_array.shape)
             class_idx = self.class_to_idx[class_name]
 
-            return img_array, class_idx
+            return img_array, class_idx, patient_path
 
         elif self.phase == "test":
             # WIP

@@ -32,18 +32,21 @@ def train(data_loader, model, optimizer, scheduler, total_epochs, save_interval,
 
     model.train()
     train_time_sp = time.time()
+    best_val_loss = 1000
     for epoch in range(total_epochs):
         log.info('Start epoch {}'.format(epoch))
 
         scheduler.step()
-        log.info('lr = {}'.format(scheduler.get_lr()))
+        current_lr = scheduler.get_lr()
+        log.info('lr = {}'.format(current_lr))
+        writer.add_scalar("LearningRate", current_lr, epoch)
 
         for batch_id, batch_data in enumerate(data_loader):
             correct = 0
             total = 0
             # getting data batch
             batch_id_sp = epoch * batches_per_epoch
-            volumes, label = batch_data
+            volumes, label, img_name = batch_data
 
             if not sets.no_cuda:
                 volumes = volumes.cuda()
@@ -68,22 +71,22 @@ def train(data_loader, model, optimizer, scheduler, total_epochs, save_interval,
                     'Batch: {}-{} ({}), loss = {:.3f}, accuracy = {:.3f} avg_batch_time = {:.3f}'\
                     .format(epoch, batch_id, batch_id_sp, last_loss, accuracy, avg_batch_time))
 
-            if not sets.ci_test:
-                # save model
-                if batch_id == 0 and batch_id_sp != 0 and batch_id_sp % save_interval == 0:
-                #if batch_id_sp != 0 and batch_id_sp % save_interval == 0:
-                    model_save_path = '{}_epoch_{}_batch_{}.pth.tar'.format(save_folder, epoch, batch_id)
-                    model_save_dir = os.path.dirname(model_save_path)
-                    if not os.path.exists(model_save_dir):
-                        os.makedirs(model_save_dir)
-
-                    log.info('Save checkpoints: epoch = {}, batch_id = {}'.format(epoch, batch_id))
-                    torch.save({
-                                'ecpoch': epoch,
-                                'batch_id': batch_id,
-                                'state_dict': model.state_dict(),
-                                'optimizer': optimizer.state_dict()},
-                                model_save_path)
+            # if not sets.ci_test:
+            #     # save model
+            #     if batch_id == 0 and batch_id_sp != 0 and batch_id_sp % save_interval == 0:
+            #     #if batch_id_sp != 0 and batch_id_sp % save_interval == 0:
+            #         model_save_path = '{}_epoch_{}_batch_{}.pth.tar'.format(save_folder, epoch, batch_id)
+            #         model_save_dir = os.path.dirname(model_save_path)
+            #         if not os.path.exists(model_save_dir):
+            #             os.makedirs(model_save_dir)
+            #
+            #         log.info('Saved checkpoints: epoch = {}, batch_id = {}'.format(epoch, batch_id))
+            #         torch.save({
+            #                     'ecpoch': epoch,
+            #                     'batch_id': batch_id,
+            #                     'state_dict': model.state_dict(),
+            #                     'optimizer': optimizer.state_dict()},
+            #                     model_save_path)
 
         #Validation per epoch
         with torch.no_grad():
@@ -93,7 +96,7 @@ def train(data_loader, model, optimizer, scheduler, total_epochs, save_interval,
             running_val_loss = 0.0
             for batch_id, batch_data in enumerate(validation_loader):
                 batch_id_sp = epoch * batches_per_epoch
-                val_volumes, val_labels = batch_data
+                val_volumes, val_labels, val_img_names = batch_data
 
                 if not sets.no_cuda:
                     val_volumes = val_volumes.cuda()
@@ -106,6 +109,10 @@ def train(data_loader, model, optimizer, scheduler, total_epochs, save_interval,
                 _, predicted = torch.max(val_out_class.data, 1)
                 total += val_labels.size(0)
                 correct += (predicted == val_labels).float().sum()
+                #Printing the ones that the model failed to predict
+                for index, item in enumerate(predicted):
+                    if item != val_labels[index]: print(val_img_names[index], " should be ", val_labels[index]))
+
                 val_loss = loss_func(val_out_class, val_labels)
                 running_val_loss += val_loss
 
@@ -114,9 +121,21 @@ def train(data_loader, model, optimizer, scheduler, total_epochs, save_interval,
             avg_val_loss = running_val_loss / (batch_id + 1)
             log.info('Validation loss {}'.format(avg_val_loss))
             log.info('Validation accuracy {}'.format(val_accuracy))
-            writer.add_scalar("Loss/train", last_loss, epoch)
-            writer.add_scalar("Loss/validation", avg_val_loss, epoch)
+            writer.add_scalar("Training vs. Validation Loss", {'Train': last_loss, 'Validation': avg_val_loss}, epoch)
             writer.add_scalar("Accuracy/validation", val_accuracy, epoch)
+            if avg_val_loss < best_val_loss:
+                best_val_loss = avg_val_loss
+                model_save_path = '{}_dualseq_epoch_{}_val_loss_{}_accuracy_{}.pth.tar'.format(save_folder, epoch, avg_val_loss, val_accuracy)
+                model_save_dir = os.path.dirname(model_save_path)
+                if not os.path.exists(model_save_dir):
+                    os.makedirs(model_save_dir)
+
+                log.info('Saved checkpoints: epoch = {} avg_val_loss = {} accuracy = {}'.format(epoch, avg_val_loss, val_accuracy))
+                torch.save({'epoch': epoch,
+                            'batch_id': batch_id,
+                            'state_dict': model.state_dict(),
+                            'optimizer': optimizer.state_dict()},
+                            model_save_path)
 
             early_stopping(val_loss,model)
 

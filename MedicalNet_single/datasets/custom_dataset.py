@@ -79,9 +79,10 @@ class CustomTumorDataset(Dataset):
             img_array = self.__nii2tensorarray__(img_array)
             class_idx = self.class_to_idx[class_name]
 
-            return img_array, class_idx
+            return img_array, class_idx, img_path
 
         elif self.phase == "test":
+            #WIP
             # read image
             img_path = self.paths[idx]
             class_name  = self.paths[idx].parent.name
@@ -249,4 +250,4 @@ class CustomTumorDataset(Dataset):
         # normalization datas
         data = self.__itensity_normalize_one_volume__(data)
 
-        return data 
+        return data
