@@ -207,8 +207,8 @@ class CustomTumorDataset(Dataset):
         """
         Resize the data to the input size
         """
-        [width, height, depth] = data.shape
-        scale = [self.input_W*1.0/width, self.input_H*1.0/height, self.input_D*1.0/depth]
+        [width, depth, height] = data.shape
+        scale = [self.input_W*1.0/width, self.input_D*1.0/depth, self.input_H*1.0/height]
         data = ndimage.interpolation.zoom(data, scale, order=0)
 
         return data
