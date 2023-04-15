@@ -15,6 +15,7 @@ from torch.utils.tensorboard import SummaryWriter
 from EarlyStopping_torch import EarlyStopping
 
 writer = SummaryWriter()
+failed_cases = {}
 
 def train(data_loader, model, optimizer, scheduler, total_epochs, save_interval, save_folder, sets, patience):
     # settings
@@ -111,7 +112,10 @@ def train(data_loader, model, optimizer, scheduler, total_epochs, save_interval,
                 correct += (predicted == val_labels).float().sum()
                 #Printing the ones that the model failed to predict
                 for index, item in enumerate(predicted):
-                    if item != val_labels[index]: print(val_img_names[index], " should be ", val_labels[index])
+                    if item != val_labels[index]:
+                        print(val_img_names[index], " should be ", val_labels[index])
+                        failed_times = failed_cases.setdefault(val_img_names[index], default=0)
+                        failed_cases[val_img_names[index]] += 1
 
                 val_loss = loss_func(val_out_class, val_labels)
                 running_val_loss += val_loss
@@ -146,6 +150,7 @@ def train(data_loader, model, optimizer, scheduler, total_epochs, save_interval,
 
     writer.flush()
     print('Finished training')
+    print(failed_cases)
     if sets.ci_test:
         exit()
 
