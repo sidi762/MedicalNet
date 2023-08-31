@@ -5,7 +5,7 @@
 `
 
 ### On Server with CUDA
-`python3 singleseq_resnet18_train.py --model resnet --model_depth 18 --resnet_shortcut A --batch_size=10 --input_W=512 --input_H=512 --input_D=20 --n_epochs=200 --data_root="data/Dataset0411/dataset_t2/data_t2" --data_root_val="data/Dataset0411/dataset_t2/data_val_t2" --learning_rate=0.001 --pretrain_path="../MedicalNet_pytorch_files2/pretrain/resnet_18_23dataset.pth" --gpu_id 1
+`python3 singleseq_resnet18_train.py --model resnet --model_depth 18 --resnet_shortcut A --batch_size=16 --input_W=256 --input_H=256 --input_D=20 --n_epochs=200 --data_root="data/Dataset0411/dataset_t1/data_t1" --data_root_val="data/Dataset0411/dataset_t1/data_val_t1" --learning_rate=0.001 --num_workers=16 --pretrain_path="../MedicalNet_pytorch_files2/pretrain/resnet_18_23dataset.pth" --gpu_id 2
 `
 
 
