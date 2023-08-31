@@ -17,9 +17,16 @@ from typing import Tuple, List, Dict
 class CustomTumorDataset(Dataset):
 
     def __init__(self, root_dir, sets):
-        self.root_dir = root_dir
+
+        if self.phase == "test":
+            with open(sets.data_list, 'r') as f:
+                self.data_list = [line.strip() for line in f]
+                print("Processing {} datas for classification".format(len(self.data_list)))
+        elif self.phase == "train":
+            self.classes, self.class_to_idx = self.__find_classes__(root_dir)
+
         self.paths = list(pathlib.Path(root_dir).glob("*/*"))#folder containing the T1 and T2 images for one patient
-        self.classes, self.class_to_idx = self.__find_classes__(root_dir)
+        self.root_dir = root_dir
         self.input_D = sets.input_D
         self.input_H = sets.input_H
         self.input_W = sets.input_W
@@ -101,16 +108,27 @@ class CustomTumorDataset(Dataset):
             # WIP
             # Not sure about what's the point of the whole ith_info stuff yet -- Sidi Liang
             # read image
-            t1_ith_info = self.t1_image_list[idx].split(" ")
-            t2_ith_info = self.t2_image_list[idx].split(" ")
-            t1_img_name = os.path.join(self.root_dir, t1_ith_info[0])
-            t2_img_name = os.path.join(self.root_dir, t1_ith_info[0])
-            print(t1_img_name)
-            print(t2_img_name)
-            assert os.path.isfile(t1_img_name)
-            assert os.path.isfile(t2_img_name)
-            t1_img = nibabel.load(t1_img_name)
-            t2_img = nibabel.load(t2_img_name)
+
+            # t1_ith_info = self.t1_image_list[idx].split(" ")
+            # t2_ith_info = self.t2_image_list[idx].split(" ")
+
+            patient_data = self.data_list[idx].split()
+            if len(patient_data) != 2:
+                raise ValueError("Each line in the data list should contain two MRI image paths.")
+
+            # Load the two MRI images
+            t1_path, t2_path = patient_data
+            # t1_img_name = os.path.join(self.root_dir, t1_ith_info[0])
+            # t2_img_name = os.path.join(self.root_dir, t1_ith_info[0])
+
+            # Get the parent directory of the images
+            parent_dir = os.path.dirname(t1_path)
+
+            assert os.path.isfile(t1_path)
+            assert os.path.isfile(t2_path)
+
+            t1_img = nibabel.load(t1_path)
+            t2_img = nibabel.load(t2_path)
             assert t1_img is not None
             assert t2_img is not None
 
@@ -270,15 +288,44 @@ class CustomTumorDataset(Dataset):
 
 
 
-    def __testing_data_process__(self, data):
-        # crop data according net input size
-        data = data.get_data()
-        #data = data[:,:,:，0]
+    def __testing_data_process__(self, data, segmentation = False):
+        if segmentation is False:
+            # For classification
+            # get data from nii and returns an array. According to the documentation,
+            # get_data() is deprecated, consider changing to get_fdata() or numpy.asanyarray(img.dataobj)
+            data = data.get_data()
+            #data = data[:,:,:,0]
 
-        # resize data
-        data = self.__resize_data__(data)
+            # drop out the invalid range
+            # data = self.__drop_invalid_range__(data)
 
-        # normalization datas
-        data = self.__itensity_normalize_one_volume__(data)
+            # crop data
+            #data = self.__crop_data__(data)
 
-        return data
+            # resize data
+            data = self.__resize_data__(data)
+
+            # normalization
+            data = self.__itensity_normalize_one_volume__(data)
+
+            return data
+        else:
+            # crop data according net input size
+            # For segmentation, WIP
+            data = data.get_data()
+            label = label.get_data()
+
+            # drop out the invalid range
+            # data, label = self.__drop_invalid_range__(data, label)
+
+            # crop data
+            #data, label = self.__crop_data__(data, label)
+
+            # resize data
+            data = self.__resize_data__(data)
+            label = self.__resize_data__(label)
+
+            # normalization datas
+            data = self.__itensity_normalize_one_volume__(data)
+
+            return data, label
